@@ -12,14 +12,40 @@
             box-sizing: border-box;
         }
 
+        .comp_first {
+
+            position: absolute;
+            top: 15rem;
+            left: 2rem;
+            height: 2rem;
+            width: 15rem;
+            background-color: rgb(255, 239, 239);
+            border: 1px dotted gray;
+
+        }
+
+        .refresh {
+
+            position: absolute;
+            top: 20rem;
+            left: 2rem;
+            height: 2rem;
+            width: 15rem;
+            background-color: rgb(255, 239, 239);
+            border: 1px dotted gray;
+
+        }
+
+
         .game_board {
 
             position: absolute;
-            top: 5rem;
+            top: 10rem;
             left: 20rem;
             height: 30.4rem;
             width: 30.4rem;
             background-color: red;
+            margin-bottom: 5rem;
 
         }
 
@@ -37,17 +63,19 @@
 </head>
 <body>
 
+    <div class="comp_first">Click here to have computer make the first move</div>
+    <div class="refresh">Click here to start a new game</div>
     <div class="game_board">
 
-        <div class="slot" x=1 y=1></div>
+        <div class="slot" x=1 y=1 d1=1></div>
         <div class="slot" x=1 y=2></div>
-        <div class="slot" x=1 y=3></div>
+        <div class="slot" x=1 y=3 d2=1></div>
         <div class="slot" x=2 y=1></div>
-        <div class="slot" x=2 y=2></div>
+        <div class="slot" x=2 y=2 d1=1 d2=1></div>
         <div class="slot" x=2 y=3></div>
-        <div class="slot" x=3 y=1></div>
+        <div class="slot" x=3 y=1 d2=1></div>
         <div class="slot" x=3 y=2></div>
-        <div class="slot" x=3 y=3></div>
+        <div class="slot" x=3 y=3 d1=1></div>
 
     </div>
 

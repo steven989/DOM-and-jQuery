@@ -6,8 +6,6 @@ var choiceX_2 = [];
 var choiceY_2 = [];
 
 
-
-
 var available_choice = ["1|1","1|2","1|3","2|1","2|2","2|3","3|1","3|2","3|3"]
 
 $(document).ready(
@@ -18,27 +16,44 @@ $(document).ready(
 
             $(this).on('click', slotClicked);
 
-        })
+        });
+
+        $('.comp_first').on('click',createResponse);
+
+        $('.refresh').on('click',reload);
     }
 )
 
+function reload(){
 
+    location.reload();
+
+}
 
 function slotClicked() {
 
     var x = $(this).attr('x');
     var y = $(this).attr('y');
 
-    logPlayerChoice(x,y);
+    if (checkAvailable(x+"|"+y)) {
 
-    removeAvailable(x,y);
+        logPlayerChoice(x,y);
 
-    changeDivColor($(this),"player1");
+        removeAvailable(x,y);
 
-    createResponse();
+        changeDivColor($(this),"player1");
 
+        if (checkWin() != true ) {
+            createResponse();
+        }
+    }
 }
 
+function checkAvailable(attempt) {
+
+   return available_choice.indexOf(attempt) > -1
+
+}
 
 
 function logPlayerChoice(x,y) {
@@ -70,11 +85,140 @@ function removeAvailable(x,y){
 function changeDivColor(slot,player) {
 
     if (player == "player1") {slot.css({"background-color":"red"});}
-    else {slot.css({"background-color":"blue"});}
+    else if (player == "player2") {slot.css({"background-color":"blue"});}
+    else {slot.css({"background-color":"green"});}
     
 }
 
 
+function checkWin() {
+
+        var x = boardScan()[0]; // an array of net score for the three x strips
+        var y = boardScan()[1]; // an array of net score for the three y strips
+        var d_1 = boardScan()[2];   // a single net score of the left top right bottom diagonal
+        var d_2 = boardScan()[3];   // a single net score of the left bottom right top diagonal
+
+        function showWin(xyd,loc,player) {
+
+            if (xyd == "x") {changeDivColor($("[x="+loc+"]"),"win");}
+            else if (xyd == "y") {changeDivColor($("[y="+loc+"]"),"win");}
+            else if (xyd == "d" && loc == 1) {changeDivColor($("[d1="+1+"]"),"win");}
+            else if (xyd == "d" && loc == 2) {changeDivColor($("[d2="+1+"]"),"win");}
+
+            if (player=="You") {alert("Congrats! You have beat the computer.")}
+            else {alert("You have lost. Next time!")}
+
+        }
+
+        if      (x[0] % 3 == 0 && x[0] != 0) { if (x[0] < 0) {var pass = "Computer"} else {var pass = "You"}; showWin("x",1,pass); return true}
+        else if (x[1] % 3 == 0 && x[1] != 0) { if (x[1] < 0) {var pass = "Computer"} else {var pass = "You"}; showWin("x",2,pass); return true}
+        else if (x[2] % 3 == 0 && x[2] != 0) { if (x[2] < 0) {var pass = "Computer"} else {var pass = "You"}; showWin("x",3,pass); return true}
+        else if (y[0] % 3 == 0 && y[0] != 0) { if (y[0] < 0) {var pass = "Computer"} else {var pass = "You"}; showWin("y",1,pass); return true}
+        else if (y[1] % 3 == 0 && y[1] != 0) { if (y[1] < 0) {var pass = "Computer"} else {var pass = "You"}; showWin("y",2,pass); return true}
+        else if (y[2] % 3 == 0 && y[2] != 0) { if (y[2] < 0) {var pass = "Computer"} else {var pass = "You"}; showWin("y",3,pass); return true}
+        else if (d_1 % 3 == 0 && d_1 != 0)  { if (d_1 < 0) {var pass = "Computer"} else {var pass = "You"}; showWin("d",1,pass); return true}
+        else if (d_2 % 3 == 0 && d_2 != 0)  { if (d_2 < 0) {var pass = "Computer"} else {var pass = "You"}; showWin("d",2,pass); return true}
+
+}
+
+
+function boardScan() {
+
+    var x = [0,0,0]
+    var y = [0,0,0]
+
+    var d_1 = 0;
+    var d_2 = 0;
+
+    var d_o_1 = 0;
+    var d_o_2 = 0;
+
+    var d_m_1 = 0;
+    var d_m_2 = 0;
+
+    // horizontal and vertical check
+
+    choiceX_1.forEach(function(x_value) {
+
+        if (x_value == 1) {x[0] += 1;}
+        else if (x_value == 2) {x[1] += 1;}
+        else {x[2] += 1;};
+
+    });
+
+    choiceY_1.forEach(function(y_value) {
+
+        if (y_value == 1) {y[0] += 1;}
+        else if (y_value == 2) {y[1] += 1;}
+        else {y[2] += 1;};
+
+    });
+
+    choiceX_2.forEach(function(x_value) {
+
+        if (x_value == 1) {x[0] -= 1;}
+        else if (x_value == 2) {x[1] -= 1;}
+        else {x[2] -= 1;};
+
+    });
+
+    choiceY_2.forEach(function(y_value) {
+
+        if (y_value == 1) {y[0] -= 1;}
+        else if (y_value == 2) {y[1] -= 1;}
+        else {y[2] -= 1;};
+
+    });
+
+
+    // diagonals check; both diagonals
+
+    for(i=1;i<=choiceX_1.length;i++) {
+
+        var diag_x = choiceX_1[i-1];
+        var diag_y = choiceY_1[i-1];
+
+        if ((diag_x == 1 && diag_y == 1) || (diag_x == 2 && diag_y == 2) || (diag_x == 3 && diag_y == 3)) {
+
+            d_1 += 1;
+            d_o_1 += 1;
+
+        };
+
+        if ((diag_x == 1 && diag_y == 3) || (diag_x == 2 && diag_y == 2) || (diag_x == 3 && diag_y == 1)) {
+
+            d_2 += 1;
+            d_o_2 += 1;
+
+        }
+
+    }
+
+    for(i=1;i<=choiceX_2.length;i++) {
+
+        var diag_x = choiceX_2[i-1];
+        var diag_y = choiceY_2[i-1];
+
+        if ((diag_x == 1 && diag_y == 1) || (diag_x == 2 && diag_y == 2) || (diag_x == 3 && diag_y == 3)) {
+
+            d_1 -= 1;
+            d_m_1 += 1;
+
+
+        };
+
+        if ((diag_x == 1 && diag_y == 3) || (diag_x == 2 && diag_y == 2) || (diag_x == 3 && diag_y == 1)) {
+
+            d_2 -= 1;
+            d_m_2 += 1;
+
+        }
+
+    }
+
+    return [x,y,d_1,d_2,d_o_1,d_o_2,d_m_1,d_m_2];
+
+}
 
 function createResponse() {
 
@@ -87,135 +231,56 @@ function createResponse() {
     var offense_x = 0;
     var offense_y = 0;
 
+    var winning_pick = 0;
+
     defense_check();
 
-    if (defense_x.length > 0) {
+    function respond(x,y) {
 
-        logPlayer2Choice(defense_x[0],defense_y[0]);
+            logPlayer2Choice(x,y);
 
-        removeAvailable(defense_x[0],defense_y[0]);
+            removeAvailable(x,y);
 
-        changeDivColor($("[x="+defense_x[0]+"][y="+defense_y[0]+"]"),"player2");
-
+            changeDivColor($("[x="+x+"][y="+y+"]"),"player2");
     }
 
-    else if (sec_defense_x.length > 0) {
+    if (winning_pick == 1) {
 
-        logPlayer2Choice(sec_defense_x[0],sec_defense_y[0]);
-
-        removeAvailable(sec_defense_x[0],sec_defense_y[0]);
-
-        changeDivColor($("[x="+sec_defense_x[0]+"][y="+sec_defense_y[0]+"]"),"player2");
+        respond(offense_x[0],offense_y[0]);
 
     }
-
     else {
 
-        logPlayer2Choice(offense_x[0],offense_y[0]);
+        if (defense_x.length > 0) {
 
-        removeAvailable(offense_x[0],offense_y[0]);
+            respond(defense_x[0],defense_y[0]);
 
-        changeDivColor($("[x="+offense_x[0]+"][y="+offense_y[0]+"]"),"player2");
+        }
 
+        else if (sec_defense_x.length > 0) {
 
+            respond(sec_defense_x[0],sec_defense_y[0]);
+
+        }
+
+        else {
+
+            respond(offense_x[0],offense_y[0]);
+        }
     }
 
+    checkWin();
 
     function defense_check() {
 
-        var x = [0,0,0]
-        var y = [0,0,0]
-
-        var d_1 = 0;
-        var d_2 = 0;
-
-        var d_o_1 = 0;
-        var d_o_2 = 0;
-
-        var d_m_1 = 0;
-        var d_m_2 = 0;
-
-
-
-        // horizontal and vertical check
-
-        choiceX_1.forEach(function(x_value) {
-
-            if (x_value == 1) {x[0] += 1;}
-            else if (x_value == 2) {x[1] += 1;}
-            else {x[2] += 1;};
-
-        });
-
-        choiceY_1.forEach(function(y_value) {
-
-            if (y_value == 1) {y[0] += 1;}
-            else if (y_value == 2) {y[1] += 1;}
-            else {y[2] += 1;};
-
-        });
-
-        choiceX_2.forEach(function(x_value) {
-
-            if (x_value == 1) {x[0] -= 1;}
-            else if (x_value == 2) {x[1] -= 1;}
-            else {x[2] -= 1;};
-
-        });
-
-        choiceY_2.forEach(function(y_value) {
-
-            if (y_value == 1) {y[0] -= 1;}
-            else if (y_value == 2) {y[1] -= 1;}
-            else {y[2] -= 1;};
-
-        });
-
-
-        // diagonals check; both diagonals
-
-        for(i=1;i<=choiceX_1.length;i++) {
-
-            var diag_x = choiceX_1[i-1];
-            var diag_y = choiceY_1[i-1];
-
-            if ((diag_x == 1 && diag_y == 1) || (diag_x == 2 && diag_y == 2) || (diag_x == 3 && diag_y == 3)) {
-
-                d_1 += 1;
-                d_o_1 += 1;
-
-            };
-
-            if ((diag_x == 1 && diag_y == 3) || (diag_x == 2 && diag_y == 2) || (diag_x == 3 && diag_y == 1)) {
-
-                d_2 += 1;
-                d_o_2 += 1;
-
-            }
-
-        }
-
-        for(i=1;i<=choiceX_2.length;i++) {
-
-            var diag_x = choiceX_2[i-1];
-            var diag_y = choiceY_2[i-1];
-
-            if ((diag_x == 1 && diag_y == 1) || (diag_x == 2 && diag_y == 2) || (diag_x == 3 && diag_y == 3)) {
-
-                d_1 -= 1;
-                d_m_1 += 1;
-
-
-            };
-
-            if ((diag_x == 1 && diag_y == 3) || (diag_x == 2 && diag_y == 2) || (diag_x == 3 && diag_y == 1)) {
-
-                d_2 -= 1;
-                d_m_2 += 1;
-
-            }
-
-        }
+        var x = boardScan()[0]; // an array of net score for the three x strips
+        var y = boardScan()[1]; // an array of net score for the three y strips
+        var d_1 = boardScan()[2];   // a single net score of the left top right bottom diagonal
+        var d_2 = boardScan()[3];   // a single net score of the left bottom right top diagonal
+        var d_o_1 = boardScan()[4]; // total score of human's left top right bottom diagonal strip
+        var d_o_2 = boardScan()[5]; // total score of human's left bottom right top diagonal strip
+        var d_m_1 = boardScan()[6]; // total score of machine's left top right bottom diagonal strip
+        var d_m_2 = boardScan()[7]; // total score of machine's left bottom right top diagonal strip
 
         // generate defensive coordinates for vertical and horizontal
 
@@ -322,7 +387,7 @@ function createResponse() {
 
         };
 
-        // Next move defensive check (to prevent the formation of checkmates in the next move by opponent)
+        // Next-move defensive check (to prevent the formation of checkmates in the next move by opponent)
 
         function nextMove(coordinates,customCoordinates){
 
@@ -543,6 +608,9 @@ function createResponse() {
 
         }
 
+        if (max3 > 0) {winning_pick = 1;}
+
+
         var show_pick = pick();
 
         offense_x = show_pick[0];
@@ -550,10 +618,4 @@ function createResponse() {
 
     }
 
-
-
 }
-
-
-
-// $('div').children().each(function(index,element){console.log($(this).attr('x'))})
